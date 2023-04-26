@@ -3,6 +3,21 @@ const { request } = require('undici');
 const dotenv = require('dotenv');
 const schedule = require('node-schedule');
 const data = require("./lib");
+const mqtt = require('mqtt')
+const host = 'broker.hivemq.com'
+const port = '1883'
+const clientId = `mqtt_${Math.random().toString(16).slice(3)}`
+
+const connectUrl = `mqtt://${host}:${port}`
+
+const client_mqtt = mqtt.connect(connectUrl, {
+  clientId,
+  clean: true,
+  connectTimeout: 4000,
+  username: 'emqx',
+  password: 'public',
+  reconnectPeriod: 1000,
+})
 
 dotenv.config();
 
@@ -14,7 +29,7 @@ const client = new Client({
 });
 
 client.once(Events.ClientReady, () => {
-  
+
   console.log('Ready!');
 });
 
@@ -41,6 +56,18 @@ client.on("messageCreate", async (message) => {
     for (const job in schedule.scheduledJobs) schedule.scheduledJobs[job].cancel();
     message.delete();
   }
+
+  if (message.content === "on") {
+    client.on('connect', () => {
+      client.publish(topic, 'ON', { qos: 0, retain: false }, (error) => {
+        if (error) {
+          console.error(error)
+        }
+      })
+    })
+    message.delete();
+  }
+
 
 })
 
