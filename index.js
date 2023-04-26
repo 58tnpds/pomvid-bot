@@ -9,6 +9,7 @@ const port = '1883'
 const clientId = `mqtt_${Math.random().toString(16).slice(3)}`
 
 const connectUrl = `mqtt://${host}:${port}`
+const topic = '/ESP32_1/LED1'
 
 const client_mqtt = mqtt.connect(connectUrl, {
   clientId,
@@ -17,6 +18,17 @@ const client_mqtt = mqtt.connect(connectUrl, {
   username: 'emqx',
   password: 'public',
   reconnectPeriod: 1000,
+})
+
+client_mqtt.on('connect', () => {
+  console.log('Connected')
+  client_mqtt.subscribe([topic], () => {
+    console.log(`Subscribe to topic '${topic}'`)
+  })
+})
+
+client_mqtt.on('message', (topic, payload) => {
+  console.log('Received Message:', topic, payload.toString())
 })
 
 dotenv.config();
@@ -58,16 +70,22 @@ client.on("messageCreate", async (message) => {
   }
 
   if (message.content === "on") {
-    client.on('connect', () => {
-      client.publish(topic, 'ON', { qos: 0, retain: false }, (error) => {
-        if (error) {
-          console.error(error)
-        }
-      })
+    client_mqtt.publish(topic, 'ON', { qos: 0, retain: false }, (error) => {
+      if (error) {
+        console.error(error)
+      }
     })
     message.delete();
   }
 
+  if (message.content === "off") {
+    client_mqtt.publish(topic, 'OFF', { qos: 0, retain: false }, (error) => {
+      if (error) {
+        console.error(error)
+      }
+    })
+    message.delete();
+  }
 
 })
 
