@@ -14,10 +14,19 @@ const client = new Client({
 });
 
 client.once(Events.ClientReady, () => {
+
   console.log('Ready!');
 });
 
-client.on('ready', () => {
+client.on('ready', async () => {
+  const embed = await data.embed();
+  const job = schedule.scheduleJob('0 12 * * *', function () {
+    message.channel.send({
+      embeds: [embed]
+    }).catch((e) => {
+      console.log(e)
+    })
+  });
   console.log(`Logged in as ${client.user.tag}!`);
 });
 
