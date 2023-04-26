@@ -50,7 +50,7 @@ client.on('ready', async () => {
 });
 
 client.on("messageCreate", async (message) => {
-  //if (message.author.bot) return
+  if (message.author.bot) return
 
   if (message.content === "sub pomvid") {
     const embed = await data.embed();
@@ -86,11 +86,6 @@ client.on("messageCreate", async (message) => {
     })
     message.delete();
   }
-
-  if (message.content === "เปิดไฟแล้ว") {
-    message.delete();
-  }
-
 })
 
 client.on(Events.InteractionCreate, async interaction => {
