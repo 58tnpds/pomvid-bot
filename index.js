@@ -50,7 +50,7 @@ client.on('ready', async () => {
 });
 
 client.on("messageCreate", async (message) => {
-  if (message.author.bot) return
+  //if (message.author.bot) return
 
   if (message.content === "sub pomvid") {
     const embed = await data.embed();
@@ -87,6 +87,10 @@ client.on("messageCreate", async (message) => {
     message.delete();
   }
 
+  if (message.content === "เปิดไฟแล้ว") {
+    message.delete();
+  }
+
 })
 
 client.on(Events.InteractionCreate, async interaction => {
@@ -96,10 +100,27 @@ client.on(Events.InteractionCreate, async interaction => {
   await interaction.deferReply();
 
   if (commandName === 'pomvid') {
-
     interaction.editReply({ embeds: [await data.embed()] });
-
   }
+
+  if (commandName === 'on') {
+    client_mqtt.publish(topic, 'ON', { qos: 0, retain: false }, (error) => {
+      if (error) {
+        console.error(error)
+      }
+    })
+    interaction.editReply({ content: "เปิดไฟแล้ว" });
+  }
+
+  if (commandName === 'off') {
+    client_mqtt.publish(topic, 'OFF', { qos: 0, retain: false }, (error) => {
+      if (error) {
+        console.error(error)
+      }
+    })
+    interaction.editReply({ content: "ปิดไฟแล้ว" });
+  }
+
 });
 
 client.login(process.env.TOKEN);
