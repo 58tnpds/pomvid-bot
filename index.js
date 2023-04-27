@@ -41,7 +41,6 @@ const client = new Client({
 });
 
 client.once(Events.ClientReady, () => {
-
   console.log('Ready!');
 });
 
@@ -69,23 +68,6 @@ client.on("messageCreate", async (message) => {
     message.delete();
   }
 
-  if (message.content === "ON LED") {
-    client_mqtt.publish(topic, 'ON', { qos: 0, retain: false }, (error) => {
-      if (error) {
-        console.error(error)
-      }
-    })
-    message.delete();
-  }
-
-  if (message.content === "OFF LED") {
-    client_mqtt.publish(topic, 'OFF', { qos: 0, retain: false }, (error) => {
-      if (error) {
-        console.error(error)
-      }
-    })
-    message.delete();
-  }
 })
 
 client.on(Events.InteractionCreate, async interaction => {
